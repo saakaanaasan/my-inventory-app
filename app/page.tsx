@@ -1,11 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [itemName, setItemName] = useState("");
   const [placeName, setPlaceName] = useState("");
   const [items, setItems] = useState<{name: string, place: string}[]>([]);
+
+  const SaveItems = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/items?name=${itemName}&place=${placeName}`, {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        setItemName("");
+        setPlaceName("");
+      } else {
+        console.error("保存に失敗しました");
+      }
+    } catch (error) {
+      console.error("データの保存に失敗しました", error);
+    }
+  };
+
+  const FetchItems = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/items`, {
+        method: "GET",
+      });
+      const data = await response.json();
+      setItems(data);
+    } catch(error) {
+      console.error("データの取得に失敗しました", error);
+    }
+  }
+
+  useEffect(() => {
+    FetchItems();
+  }, []);
 
   // 物と場所をリストに追加
   const addItem = () => {  
